@@ -6,6 +6,8 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 	"io/ioutil"
 	"log"
 	"net"
@@ -44,6 +46,7 @@ const (
 )
 
 func NewHTTP(cfg HTTPConfig) (Relay, error) {
+
 	h := new(HTTP)
 
 	h.addr = cfg.Addr
@@ -111,6 +114,7 @@ func (h *HTTP) Stop() error {
 }
 
 func (h *HTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
 	start := time.Now()
 
 	if r.URL.Path == "/ping" && (r.Method == "GET" || r.Method == "HEAD") {
@@ -210,11 +214,24 @@ func (h *HTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		go func() {
 			defer wg.Done()
 			resp, err := b.post(outBytes, query, authHeader)
+
 			if err != nil {
 				log.Printf("Problem posting to relay %q backend %q: %v", h.Name(), b.name, err)
+				span := tracer.StartSpan("influx.request", tracer.ResourceName("/write"))
+				span.SetTag(ext.Error, fmt.Errorf("Problem posting to relay %q backend %q: %v", h.Name(), b.name, err))
+				span.Finish()
 			} else {
 				if resp.StatusCode/100 == 5 {
 					log.Printf("5xx response for relay %q backend %q: %v", h.Name(), b.name, resp.StatusCode)
+					span := tracer.StartSpan("influx.request", tracer.ResourceName("/write"))
+					span.SetTag(ext.Error, fmt.Errorf("5xx response for relay %q backend %q: %v", h.Name(), b.name, resp.StatusCode))
+					span.Finish()
+				} else {
+					span := tracer.StartSpan("influx.request", tracer.ResourceName("/write"))
+					span.SetTag("http.url", r.URL.Path)
+					span.SetTag("influx.backend", b.name)
+					log.Printf("%s -> %d", b.name, resp.StatusCode)
+					span.Finish()
 				}
 				responses <- resp
 			}
