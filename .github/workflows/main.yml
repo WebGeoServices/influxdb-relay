@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: BUILD & DEPLOY
-        run: ./deploy.sh 074067892588.dkr.ecr.us-east-1.amazonaws.com/influxdb-relay
+        run: ./deploy.sh 074067892588.dkr.ecr.us-east-1.amazonaws.com/woosmap/influxdb-relay
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
