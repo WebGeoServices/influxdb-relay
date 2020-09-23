@@ -2,6 +2,9 @@ name: Deploy Custom influxdb-relay
 
 on:
   push:
+    branches:
+    - master
+    - develop
 
 jobs:
   build:
