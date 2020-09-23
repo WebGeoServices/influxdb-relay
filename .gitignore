@@ -1,2 +1,4 @@
 *.swp
 /build
+relay.toml
+influxdb-relay

@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/influxdata/influxdb-relay/relay"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 	"log"
 	"os"
 	"os/signal"
-
-	"github.com/influxdata/influxdb-relay/relay"
 )
 
 var (
@@ -15,6 +15,13 @@ var (
 )
 
 func main() {
+	tracer.Start(
+		tracer.WithServiceName(os.Getenv("DATADOG_SERVICE")),
+		tracer.WithEnv(os.Getenv("DATADOG_ENV")),
+		tracer.WithAgentAddr("dd-agent"))
+	tracer.WithDebugMode(false)
+	defer tracer.Stop()
+
 	flag.Parse()
 
 	if *configFile == "" {
