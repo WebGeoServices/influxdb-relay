@@ -12,4 +12,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: BUILD & DEPLOY
-        run: ./deploy.sh 074067892588.dkr.ecr.us-east-1.amazonaws.com/woosmap/influxdb-relay
+        run: ./deploy.sh 074067892588.dkr.ecr.us-east-1.amazonaws.com/influxdb-relay
