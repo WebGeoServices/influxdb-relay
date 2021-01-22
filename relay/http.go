@@ -214,24 +214,20 @@ func (h *HTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		go func() {
 			defer wg.Done()
 			resp, err := b.post(outBytes, query, authHeader)
+			span := tracer.StartSpan("influx.request", tracer.ResourceName("/write"))
+			defer span.Finish()
 
 			if err != nil {
 				log.Printf("Problem posting to relay %q backend %q: %v", h.Name(), b.name, err)
-				span := tracer.StartSpan("influx.request", tracer.ResourceName("/write"))
 				span.SetTag(ext.Error, fmt.Errorf("Problem posting to relay %q backend %q: %v", h.Name(), b.name, err))
-				span.Finish()
 			} else {
 				if resp.StatusCode/100 == 5 {
 					log.Printf("5xx response for relay %q backend %q: %v", h.Name(), b.name, resp.StatusCode)
-					span := tracer.StartSpan("influx.request", tracer.ResourceName("/write"))
 					span.SetTag(ext.Error, fmt.Errorf("5xx response for relay %q backend %q: %v", h.Name(), b.name, resp.StatusCode))
-					span.Finish()
 				} else {
-					span := tracer.StartSpan("influx.request", tracer.ResourceName("/write"))
 					span.SetTag("http.url", r.URL.Path)
 					span.SetTag("influx.backend", b.name)
-					log.Printf("%s -> %d", b.name, resp.StatusCode)
-					span.Finish()
+					//log.Printf("%s -> %d", b.name, resp.StatusCode)
 				}
 				responses <- resp
 			}

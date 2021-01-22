@@ -3,7 +3,7 @@ module github.com/influxdata/influxdb-relay
 go 1.13
 
 require (
-	github.com/DataDog/datadog-go v3.7.2+incompatible // indirect
+	github.com/DataDog/datadog-go v3.7.2+incompatible
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/influxdata/influxdb1-client v0.0.0-20200515024757-02f0bf5dbca3
 	github.com/kylelemons/godebug v1.1.0 // indirect
@@ -16,4 +16,5 @@ require (
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/DataDog/dd-trace-go.v1 v1.26.0
+
 )
