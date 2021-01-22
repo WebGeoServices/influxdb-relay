@@ -18,8 +18,6 @@ WORKDIR $PROJECT_DIR
 COPY ./ $PROJECT_DIR/
 
 ENV PATH $GOPATH/bin:$PATH
-RUN go get -u gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http
-RUN go get -u
 RUN go get -u github.com/influxdata/influxdb1-client/models && go get -u github.com/naoina/toml && \
 go build -o $GOPATH/bin/influxdb-relay ./main.go
 
