@@ -1,7 +1,9 @@
 package relay
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/naoina/toml"
 )
@@ -91,4 +93,40 @@ func LoadConfigFile(filename string) (cfg Config, err error) {
 	defer f.Close()
 
 	return cfg, toml.NewDecoder(f).Decode(&cfg)
+}
+
+func makeMapEnviron(envLines []string) map[string]string {
+	retVal := make(map[string]string)
+	for _, envLine := range envLines {
+		pair := strings.SplitN(envLine, "=", 2)
+		retVal[pair[0]] = pair[1]
+	}
+	return retVal
+}
+
+func NewConfigFromEnv(envLines []string) (cfg Config, err error) {
+	env := makeMapEnviron(envLines)
+
+	hosts := strings.Split(env["INFLUX_RELAY_HOSTS"], " ")
+	outputs := []HTTPOutputConfig{}
+
+	for index, host := range hosts {
+		outputs = append(outputs, HTTPOutputConfig{
+			Name:                fmt.Sprintf("output_%d", index+1),
+			Location:            fmt.Sprintf("http://%s/write", host),
+			Timeout:             "",
+			BufferSizeMB:        100,
+			MaxBatchKB:          50,
+			MaxDelayInterval:    "120s",
+			SkipTLSVerification: true,
+		})
+	}
+
+	httpRelayConfig := HTTPConfig{
+		Name:    "influx-db-relay",
+		Addr:    "0.0.0.0:8080",
+		Outputs: outputs,
+	}
+
+	return Config{HTTPRelays: []HTTPConfig{httpRelayConfig}}, nil
 }
