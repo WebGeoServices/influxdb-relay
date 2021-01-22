@@ -95,19 +95,7 @@ func LoadConfigFile(filename string) (cfg Config, err error) {
 	return cfg, toml.NewDecoder(f).Decode(&cfg)
 }
 
-func makeMapEnviron(envLines []string) map[string]string {
-	retVal := make(map[string]string)
-	for _, envLine := range envLines {
-		pair := strings.SplitN(envLine, "=", 2)
-		retVal[pair[0]] = pair[1]
-	}
-	return retVal
-}
-
-func NewConfigFromEnv(envLines []string) (cfg Config, err error) {
-	env := makeMapEnviron(envLines)
-
-	hosts := strings.Split(env["INFLUX_RELAY_HOSTS"], " ")
+func NewConfigFromEnv(hosts []string) (cfg Config, err error) {
 	outputs := []HTTPOutputConfig{}
 
 	for index, host := range hosts {

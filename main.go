@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 )
 
 var (
@@ -41,10 +42,15 @@ func main() {
 			log.Fatalf("Problem loading config file: %s", err)
 		}
 	} else {
-		cfg, err = relay.NewConfigFromEnv(os.Environ())
-		if err != nil {
-			log.Fatalf("Problem while loading config from environment: %s", err)
+		if relayHosts, ok := os.LookupEnv("INFLUX_RELAY_HOSTS"); ok {
+			cfg, err = relay.NewConfigFromEnv(strings.Split(relayHosts, " "))
+			if err != nil {
+				log.Fatalf("Problem while loading config from environment: %s", err)
+			}
+		} else {
+			log.Fatal("Environment Variable INFLUX_RELAY_HOST should be defined.")
 		}
+
 	}
 
 	r, err := relay.New(cfg)
