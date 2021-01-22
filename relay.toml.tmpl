@@ -1,7 +1,0 @@
-[[http]]
-name = \"influx-relay-http\"
-bind-addr = \"0.0.0.0:9096\"
-output = [
-    { name=\"local1\", location = \"http://${INFLUXDB_1}/write\", buffer-size-mb = ${BUFFER_SIZE}, max-batch-kb = ${MAX_BATCH}, max-delay-interval = \"${MAX_DELAY}\" },
-    { name=\"local2\", location = \"http://${INFLUXDB_2}/write\", buffer-size-mb = ${BUFFER_SIZE}, max-batch-kb = ${MAX_BATCH}, max-delay-interval = \"${MAX_DELAY}\" },
-]
